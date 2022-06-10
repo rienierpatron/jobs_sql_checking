@@ -1,0 +1,43 @@
+JOB SQL ANALYSIS
+
+Checking on the provided SQL query, here is my analysis, based on the practices I normally use during my past experiences:
+
+  - Since this is a search query, there are items in the SELECT section which I think can be removed and retain the below items. The reason for this is to cut the data the mysql will be examining.
+I find them not necessary in the search query, we can just trigger another query to fetch those data if need (something like if view more details is clicked)
+
+Jobs.id AS `Jobs__id`,
+Jobs.name AS `Jobs__name`,
+Jobs.media_id AS `Jobs__media_id`, - if media is to be shown in list (if it is something like a thumbnail)
+Jobs.job_category_id AS `Jobs__job_category_id`, - if link to show category is needed
+Jobs.job_type_id AS `Jobs__job_type_id`, - if link for job type is needed
+Jobs.location AS `Jobs__location`,
+Jobs.salary_statistic_group AS `Jobs__salary_statistic_group`,
+Jobs.salary_range_first_year AS `Jobs__salary_range_first_year`,
+Jobs.salary_range_average AS `Jobs__salary_range_average`,
+Jobs.estimated_total_workers AS `Jobs__estimated_total_workers`,
+Jobs.url AS `Jobs__url`,
+Jobs.publish_status AS `Jobs__publish_status`,
+Jobs.version AS `Jobs__version`,
+Jobs.created_by AS `Jobs__created_by`,
+Jobs.created AS `Jobs__created`,
+Jobs.modified AS `Jobs__modified`,
+Jobs.deleted AS `Jobs__deleted`,
+JobCategories.name AS `JobCategories__name`,
+JobTypes.name AS `JobTypes__name`
+
+ - doing table indexing can also speed up the query 
+ - In the table joining section, I found several joins which are irrelevant with the SELECT section. 
+Here are the remaining JOIN section:
+
+INNER JOIN job_categories JobCategories ON (JobCategories.id = (Jobs.job_category_id) AND (JobCategories.deleted) IS NULL)
+INNER JOIN job_types JobTypes ON (JobTypes.id = (Jobs.job_type_id) AND (JobTypes.deleted) IS NULL)
+
+I noticed that in the JOIN clause, there are tables used to get certain multiple values for a job (like practical skills and abilites). 
+Like the suggestion that I have for the SELECT section items, we can just show the items using another trigger
+
+ - as for the filtering, having many filters is good as this will speed up the query since we are reducing data result. 
+Based on what I'm seeing, I suggest that rather using LIKE operator on all filter parameters, we can use the equal operator in some part
+If in the search interface - there is a textbox, we can use that for the name,description,detail as keyword finder
+For the categories, job types, salary range, etc, we can use the ids and put it in the equal operator.
+Having WHERE clause with multiple LIKE operator plus using the OR operator, can really slow the query speed as it will check all possibilities 
+that this specific keyword is available in the WHERE parameters
